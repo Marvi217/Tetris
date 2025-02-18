@@ -18,9 +18,7 @@ class App:
     def load_img(self):
         files = [item for item in pathlib.Path(SPRITE_DIR).rglob("*.png") if item.is_file()]
         img = [pg.image.load(str(file)).convert_alpha() for file in files]
-        print(f"Original size: {img[0].get_size()}")  # Oryginalny rozmiar
         img = [pg.transform.scale(image, (TILE_SIZE, TILE_SIZE)) for image in img]
-        print(f"Scaled size: {img[0].get_size()}")  # Skalowany rozmiar
         return img
 
     def set_timer(self):
@@ -37,7 +35,7 @@ class App:
 
     def draw(self):
         self.screen.fill(color=BG_COLOR)
-        self.screen.fill(color=FIELD_COLOR, rect=(0,0, *FIELD_RES))
+        self.screen.fill(color=FIELD_COLOR, rect=(FIELD_OFFSET_X,0, *FIELD_RES))
         self.tetris.draw()
         self.text.draw()
         pg.display.flip()

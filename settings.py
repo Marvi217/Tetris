@@ -17,25 +17,20 @@ else:
 SPRITE_DIR = os.path.join(base_path, 'sprites')
 FONT_PATH = os.path.join(base_path, 'font', 'FREAKSOFNATUREMASSIVE.ttf')
 
-ANIMATION_TIME = 150
+ANIMATION_TIME = 300
 FAST_ANIMATION = 15
 
-TILE_SIZE = 50
+TILE_SIZE = 40
 FIELD_SIZE = FIELD_W, FIELD_H = 10,20
 FIELD_RES = FIELD_W * TILE_SIZE, FIELD_H * TILE_SIZE
+FIELD_OFFSET_X = 250
 
-
-FIELD_SCALE_W, FIELD_SCALE_H = 1.7, 1
+FIELD_SCALE_W, FIELD_SCALE_H = 2.4, 1
 WIN_RES = WIN_W, WIN_H = FIELD_RES[0] * FIELD_SCALE_W, FIELD_RES[1] * FIELD_SCALE_H
-
-LEFT_UI_WIDTH = FIELD_RES[0] * 0.35  # Szerokość lewego panelu informacyjnego
-RIGHT_UI_WIDTH = FIELD_RES[0] * 0.35 # Szerokość prawego panelu informacyjnego
-
-FIELD_POS = vec(LEFT_UI_WIDTH, 0)  # Przesunięcie pola gry na środek ekranu
-
 
 POS_OFFSET = vec(FIELD_W // 2 - 1, 0)
 NEXT_POS_OFFSET = vec(FIELD_W * 1.3, FIELD_H * 0.45)
+HELD_POS_OFFSET = vec(FIELD_W * 0.3, FIELD_H * 0.25)
 MOVE_DIRECTIONS = {'left': vec(-1,0), 'right': vec(1,0), 'down': vec(0,1)}
 
 TETROMINOES = {

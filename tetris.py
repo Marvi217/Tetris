@@ -1,6 +1,9 @@
 import pygame.freetype as ft
+
+import block
 from settings import *
-from tetromino import Tetromino
+from tetromino import Tetromino, Block
+
 
 class Text:
     def __init__(self, app):
@@ -8,14 +11,17 @@ class Text:
         self.font = ft.Font(FONT_PATH)
 
     def draw(self):
-        self.font.render_to(self.app.screen, (WIN_W * 0.595, WIN_H * 0.02),
+        window = FIELD_OFFSET_X *0.4
+        self.font.render_to(self.app.screen, (window + WIN_W * 0.595, WIN_H * 0.02),
                             text='Tetris', fgcolor='white', size=TILE_SIZE * 1.65, bgcolor='black')
-        self.font.render_to(self.app.screen, (WIN_W * 0.65, WIN_H * 0.22),
+        self.font.render_to(self.app.screen, (window + WIN_W * 0.65, WIN_H * 0.22),
                             text='Next', fgcolor='white', size=TILE_SIZE * 1.4, bgcolor='black')
-        self.font.render_to(self.app.screen, (WIN_W * 0.64, WIN_H * 0.67),
+        self.font.render_to(self.app.screen, (window + WIN_W * 0.64, WIN_H * 0.67),
                             text='Score', fgcolor='white', size=TILE_SIZE * 1.4, bgcolor='black')
-        self.font.render_to(self.app.screen, (WIN_W * 0.64, WIN_H * 0.8),
+        self.font.render_to(self.app.screen, (window + WIN_W * 0.64, WIN_H * 0.8),
                             text=f'{self.app.tetris.score}', fgcolor='white', size=TILE_SIZE * 1.8)
+        self.font.render_to(self.app.screen, (WIN_W * 0.04, WIN_H * 0.02),
+                            text='Held', fgcolor='white', size=TILE_SIZE * 1.4, bgcolor='black')
 
 
 class Tetris:
@@ -25,6 +31,8 @@ class Tetris:
         self.field_array = self.get_field_array()
         self.tetromino = Tetromino(self)
         self.next_tetromino = Tetromino(self, current=False)
+        self.held_tetromino = None
+        self.held_used = False
         self.speed_up = False
 
         self.score = 0
@@ -35,7 +43,7 @@ class Tetris:
         self.score += self.points_per_level[self.full_lines]
         self.full_lines = 0
 
-    def chceck_full_raws(self):
+    def chceck_full_rows(self):
         row = FIELD_H-1
         for y in range(FIELD_H-1, -1, -1):
             for x in range(FIELD_W):
@@ -52,6 +60,27 @@ class Tetris:
                     self.field_array[row][x] = 0
 
                 self.full_lines += 1
+
+    def hold_tetromino(self,):
+        if self.held_used:
+            return
+        if self.held_tetromino is None:
+            self.held_tetromino = self.tetromino
+            self.held_tetromino.held = True
+
+            self.next_tetromino.current = True
+            self.tetromino = self.next_tetromino
+            self.next_tetromino = Tetromino(self, current=False)
+        else:
+            self.held_tetromino, self.tetromino, = self.tetromino, self.held_tetromino
+            self.held_tetromino.held = True
+            self.held_tetromino.current = False
+            self.tetromino.held = False
+            self.tetromino.current = True
+            self.tetromino.reset_position()
+
+        self.held_used = True
+
 
     def put_tetromino_in_array(self):
         for block in self.tetromino.blocks:
@@ -76,6 +105,7 @@ class Tetris:
                 self.next_tetromino.current = True
                 self.tetromino = self.next_tetromino
                 self.next_tetromino = Tetromino(self, current=False)
+                self.held_used = False
 
     def control(self, pressed_key):
         if pressed_key == pg.K_LEFT:
@@ -86,17 +116,20 @@ class Tetris:
             self.tetromino.rotate()
         elif pressed_key == pg.K_DOWN:
             self.speed_up = True
+        elif pressed_key == pg.K_SPACE:
+            self.hold_tetromino()
 
     def draw_grid(self):
         for x in range(FIELD_W):
             for y in range(FIELD_H):
                 pg.draw.rect(self.app.screen, 'black',
-                             (x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE), 1)
+                             ((x * TILE_SIZE) + FIELD_OFFSET_X, y * TILE_SIZE, TILE_SIZE, TILE_SIZE), 1)
+
 
     def update(self):
         trigger = [self.app.anim_trigger, self.app.fast_anim_trigger][self.speed_up]
         if trigger:
-            self.chceck_full_raws()
+            self.chceck_full_rows()
             self.tetromino.update()
             self.chceck_tetromino_landing()
             self.get_score()
